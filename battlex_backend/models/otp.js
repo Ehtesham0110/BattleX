@@ -1,4 +1,5 @@
-﻿const mongoose = require('mongoose');
+﻿//otp.js
+const mongoose = require('mongoose');
 
 const otpSchema = new mongoose.Schema({
   phoneNumber: {

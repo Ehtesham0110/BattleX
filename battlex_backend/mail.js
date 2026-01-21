@@ -1,27 +1,36 @@
 ﻿const nodemailer = require("nodemailer");
-require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,          // smtp-relay.brevo.com
-  port: Number(process.env.SMTP_PORT),  // 587
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
   secure: false,
-  requireTLS: true,                     // 🔴 REQUIRED
+  requireTLS: true,
   auth: {
-    user: "apikey",                     // 🔴 MUST be literal "apikey"
-    pass: process.env.SMTP_PASS
+    user: "apikey",
+    pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false           // 🔴 REQUIRED on Render
+    rejectUnauthorized: false,
+  },
+});
+
+transporter.verify((error) => {
+  if (error) {
+    console.error("❌ SMTP error:", error);
+  } else {
+    console.log("✅ SMTP ready");
   }
 });
 
-async function sendMail({ to, subject, text }) {
+async function sendMail({ to, subject, text, html }) {
   await transporter.sendMail({
-    from: process.env.FROM_EMAIL,
+    from: `"BattleX" <${process.env.SMTP_FROM}>`,
     to,
     subject,
-    text
+    text,
+    html,
   });
 }
+
 
 module.exports = sendMail;

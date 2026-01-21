@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');         
 const Transaction = require('../models/transaction');
 const sendMail = require('../mail');
+const otpTemplate = require('../templates/otpEmail');
+
 
 // ----------------------- LOGIN -----------------------
 const login = async (req, res) => {
@@ -65,19 +67,23 @@ const signup = async (req, res) => {
 
     await newUser.save();
 
-    // ✅ RESPOND FIRST (IMPORTANT)
+    // ✅ RESPOND FIRST (NON-BLOCKING)
     res.status(201).json({
       success: true,
       message: 'Signup successful. OTP generated.',
     });
 
-    // 🔁 SEND EMAIL IN BACKGROUND (NON-BLOCKING)
+    // 🔁 SEND OTP EMAIL (HTML + TEXT FALLBACK)
     sendMail({
       to: email,
       subject: 'BattleX Verification Code',
-      text: `Your OTP is: ${otpCode}\n\nIt will expire in 10 minutes.`,
+      text: `Your BattleX OTP is ${otpCode}. It will expire in 10 minutes.`,
+      html: otpTemplate({
+        otp: otpCode,
+        minutes: 10,
+      }),
     }).catch(err => {
-      console.error('⚠️ OTP email failed, signup still successful:', err.message);
+      console.error('⚠️ OTP email failed (signup still OK):', err.message);
     });
 
   } catch (error) {
@@ -85,6 +91,7 @@ const signup = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Signup failed' });
   }
 };
+
 
 // ----------------------- VERIFY OTP -----------------------
 const verifyOtp = async (req, res) => {
