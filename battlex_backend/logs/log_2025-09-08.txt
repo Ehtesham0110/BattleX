@@ -1,0 +1,90 @@
+[2025-09-08T11:02:13.930Z] ✔ All route patterns are valid.
+[2025-09-08T11:02:15.796Z] ✔ Mounted /api/auth
+[2025-09-08T11:09:45.746Z] ✔ All route patterns are valid.
+[2025-09-08T11:09:45.933Z] ✔ Mounted /api/auth
+[2025-09-08T11:09:47.066Z] ✔ Mounted /api/tournaments
+[2025-09-08T11:09:47.115Z] ✔ Mounted /api/leaderboard
+[2025-09-08T11:09:47.171Z] ✔ Mounted /api/results
+[2025-09-08T11:09:47.177Z] ✔ Mounted /api/wallet
+[2025-09-08T11:09:47.213Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T11:09:47.895Z] ✔ MongoDB connected
+[2025-09-08T11:42:19.212Z] ✔ All route patterns are valid.
+[2025-09-08T11:42:19.527Z] ✔ Mounted /api/auth
+[2025-09-08T11:42:19.989Z] ✔ Mounted /api/tournaments
+[2025-09-08T11:42:20.004Z] ✔ Mounted /api/leaderboard
+[2025-09-08T11:42:20.016Z] ✔ Mounted /api/results
+[2025-09-08T11:42:20.022Z] ✔ Mounted /api/wallet
+[2025-09-08T11:42:20.050Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T11:42:20.700Z] ✔ MongoDB connected
+[2025-09-08T11:48:47.821Z] ✔ All route patterns are valid.
+[2025-09-08T11:48:48.063Z] ✔ Mounted /api/auth
+[2025-09-08T11:48:48.442Z] ✔ Mounted /api/tournaments
+[2025-09-08T11:48:48.451Z] ✔ Mounted /api/leaderboard
+[2025-09-08T11:48:48.462Z] ✔ Mounted /api/results
+[2025-09-08T11:48:48.480Z] ✔ Mounted /api/wallet
+[2025-09-08T11:48:48.527Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T11:48:48.978Z] ✔ MongoDB connected
+[2025-09-08T17:10:56.139Z] ✔ All route patterns are valid.
+[2025-09-08T17:10:57.696Z] ✔ Mounted /api/auth
+[2025-09-08T17:11:02.204Z] ✔ Mounted /api/tournaments
+[2025-09-08T17:11:02.250Z] ✔ Mounted /api/leaderboard
+[2025-09-08T17:11:02.259Z] ✔ Mounted /api/results
+[2025-09-08T17:11:02.264Z] ✔ Mounted /api/wallet
+[2025-09-08T17:11:02.277Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T17:11:04.342Z] ✔ MongoDB connected
+[2025-09-08T17:38:59.808Z] ✔ All route patterns are valid.
+[2025-09-08T17:39:00.088Z] ✔ Mounted /api/auth
+[2025-09-08T17:39:00.547Z] ✔ Mounted /api/tournaments
+[2025-09-08T17:39:00.553Z] ✔ Mounted /api/leaderboard
+[2025-09-08T17:39:00.562Z] ✔ Mounted /api/results
+[2025-09-08T17:39:00.573Z] ✔ Mounted /api/wallet
+[2025-09-08T17:39:00.594Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T17:39:01.082Z] ✔ MongoDB connected
+[2025-09-08T18:10:46.180Z] ✔ All route patterns are valid.
+[2025-09-08T18:10:46.714Z] ✔ Mounted /api/auth
+[2025-09-08T18:10:47.709Z] ✔ Mounted /api/tournaments
+[2025-09-08T18:10:47.743Z] ✔ Mounted /api/leaderboard
+[2025-09-08T18:10:47.753Z] ✔ Mounted /api/results
+[2025-09-08T18:10:47.758Z] ✔ Mounted /api/wallet
+[2025-09-08T18:10:47.853Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T18:10:49.804Z] ✔ MongoDB connected
+[2025-09-08T18:22:55.657Z] ✔ All route patterns are valid.
+[2025-09-08T18:22:56.218Z] ✔ Mounted /api/auth
+[2025-09-08T18:22:57.299Z] ✔ Mounted /api/tournaments
+[2025-09-08T18:22:57.312Z] ✔ Mounted /api/leaderboard
+[2025-09-08T18:22:57.405Z] ✔ Mounted /api/results
+[2025-09-08T18:22:57.437Z] ✔ Mounted /api/wallet
+[2025-09-08T18:22:57.635Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T18:22:58.502Z] ✔ MongoDB connected
+[2025-09-08T18:35:32.688Z] ✔ All route patterns are valid.
+[2025-09-08T18:35:32.921Z] ✔ Mounted /api/auth
+[2025-09-08T18:35:33.495Z] ✔ Mounted /api/tournaments
+[2025-09-08T18:35:33.510Z] ✔ Mounted /api/leaderboard
+[2025-09-08T18:35:33.525Z] ✔ Mounted /api/results
+[2025-09-08T18:35:33.532Z] ✔ Mounted /api/wallet
+[2025-09-08T18:35:33.552Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T18:35:33.969Z] ✔ MongoDB connected
+[2025-09-08T19:19:28.638Z] ✔ All route patterns are valid.
+[2025-09-08T19:19:28.869Z] ✔ Mounted /api/auth
+[2025-09-08T19:19:29.446Z] ✔ Mounted /api/tournaments
+[2025-09-08T19:19:29.454Z] ✔ Mounted /api/leaderboard
+[2025-09-08T19:19:29.470Z] ✔ Mounted /api/results
+[2025-09-08T19:19:29.487Z] ✔ Mounted /api/wallet
+[2025-09-08T19:19:29.519Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T19:19:31.113Z] ✔ MongoDB connected
+[2025-09-08T19:41:19.199Z] ✔ All route patterns are valid.
+[2025-09-08T19:41:19.467Z] ✔ Mounted /api/auth
+[2025-09-08T19:41:21.163Z] ✔ Mounted /api/tournaments
+[2025-09-08T19:41:21.209Z] ✔ Mounted /api/leaderboard
+[2025-09-08T19:41:21.229Z] ✔ Mounted /api/results
+[2025-09-08T19:41:21.239Z] ✔ Mounted /api/wallet
+[2025-09-08T19:41:21.277Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T19:41:22.386Z] ✔ MongoDB connected
+[2025-09-08T19:54:58.311Z] ✔ All route patterns are valid.
+[2025-09-08T19:54:58.516Z] ✔ Mounted /api/auth
+[2025-09-08T19:54:58.991Z] ✔ Mounted /api/tournaments
+[2025-09-08T19:54:59.025Z] ✔ Mounted /api/leaderboard
+[2025-09-08T19:54:59.046Z] ✔ Mounted /api/results
+[2025-09-08T19:54:59.083Z] ✔ Mounted /api/wallet
+[2025-09-08T19:54:59.115Z] 🚀 Server running at http://localhost:5000
+[2025-09-08T19:54:59.563Z] ✔ MongoDB connected

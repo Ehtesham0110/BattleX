@@ -1,0 +1,33 @@
+[2025-08-25T10:47:32.816Z] ✔ All route patterns are valid.
+[2025-08-25T10:47:34.957Z] ✔ Mounted /api/auth
+[2025-08-25T10:47:43.707Z] ✔ Mounted /api/tournaments
+[2025-08-25T10:47:43.778Z] ✔ Mounted /api/leaderboard
+[2025-08-25T10:47:43.922Z] ✔ Mounted /api/results
+[2025-08-25T10:47:43.963Z] ✔ Mounted /api/wallet
+[2025-08-25T10:47:44.019Z] 🚀 Server running at http://localhost:5000
+[2025-08-25T10:47:44.543Z] ✔ MongoDB connected
+[2025-08-25T20:22:01.154Z] ✔ All route patterns are valid.
+[2025-08-25T20:22:02.727Z] ✔ Mounted /api/auth
+[2025-08-25T20:22:08.569Z] ✔ Mounted /api/tournaments
+[2025-08-25T20:22:08.616Z] ✔ Mounted /api/leaderboard
+[2025-08-25T20:28:38.286Z] ✔ All route patterns are valid.
+[2025-08-25T20:28:38.598Z] ✔ Mounted /api/auth
+[2025-08-25T20:28:39.725Z] ✔ Mounted /api/tournaments
+[2025-08-25T20:28:39.732Z] ✔ Mounted /api/leaderboard
+[2025-08-25T20:28:39.743Z] ⚠ Router from ./routes/resultRoutes has no stack. Skipping asyncHandler wrapping.
+[2025-08-25T20:52:29.475Z] ✔ All route patterns are valid.
+[2025-08-25T20:52:29.691Z] ✔ Mounted /api/auth
+[2025-08-25T20:52:30.675Z] ✔ Mounted /api/tournaments
+[2025-08-25T20:52:30.681Z] ✔ Mounted /api/leaderboard
+[2025-08-25T20:52:30.771Z] ✔ Mounted /api/results
+[2025-08-25T20:52:30.776Z] ✔ Mounted /api/wallet
+[2025-08-25T20:52:30.799Z] 🚀 Server running at http://localhost:5000
+[2025-08-25T20:52:31.213Z] ✔ MongoDB connected
+[2025-08-25T21:27:34.416Z] ✔ All route patterns are valid.
+[2025-08-25T21:27:34.717Z] ✔ Mounted /api/auth
+[2025-08-25T21:27:35.458Z] ✔ Mounted /api/tournaments
+[2025-08-25T21:27:35.469Z] ✔ Mounted /api/leaderboard
+[2025-08-25T21:27:35.570Z] ✔ Mounted /api/results
+[2025-08-25T21:27:35.583Z] ✔ Mounted /api/wallet
+[2025-08-25T21:27:35.605Z] 🚀 Server running at http://localhost:5000
+[2025-08-25T21:27:36.121Z] ✔ MongoDB connected

@@ -1,0 +1,19 @@
+[2025-09-01T09:06:03.215Z] 📡 [POST] /api/auth/login Params: {} Query: {} Body: {"phoneNumber":"8070887273","username":"Ehtesham"}
+[2025-09-01T09:06:03.267Z] 📌 [Route Called] POST /api/auth/login
+[2025-09-01T09:06:05.085Z] ✅ [Route Success] POST /api/auth/login
+[2025-09-01T18:23:51.279Z] ✔ All route patterns are valid.
+[2025-09-01T18:23:53.958Z] ✔ Mounted /api/auth
+[2025-09-01T18:23:59.323Z] ✔ Mounted /api/tournaments
+[2025-09-01T18:23:59.369Z] ✔ Mounted /api/leaderboard
+[2025-09-01T18:23:59.427Z] ✔ Mounted /api/results
+[2025-09-01T18:23:59.432Z] ✔ Mounted /api/wallet
+[2025-09-01T18:23:59.462Z] 🚀 Server running at http://localhost:5000
+[2025-09-01T18:24:00.310Z] ✔ MongoDB connected
+[2025-09-01T20:05:34.097Z] ✔ All route patterns are valid.
+[2025-09-01T20:05:34.364Z] ✔ Mounted /api/auth
+[2025-09-01T20:05:35.524Z] ✔ Mounted /api/tournaments
+[2025-09-01T20:05:35.557Z] ✔ Mounted /api/leaderboard
+[2025-09-01T20:05:35.586Z] ✔ Mounted /api/results
+[2025-09-01T20:05:35.599Z] ✔ Mounted /api/wallet
+[2025-09-01T20:05:35.647Z] 🚀 Server running at http://localhost:5000
+[2025-09-01T20:05:36.324Z] ✔ MongoDB connected

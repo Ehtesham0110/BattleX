@@ -1,0 +1,43 @@
+[2025-08-24T18:44:15.846Z] ✔ All route patterns are valid.
+[2025-08-24T18:49:01.630Z] ✔ All route patterns are valid.
+[2025-08-24T18:53:46.166Z] ✔ All route patterns are valid.
+[2025-08-24T19:00:54.911Z] ✔ All route patterns are valid.
+[2025-08-24T19:00:55.192Z] ✔ Mounted /api/auth
+[2025-08-24T19:01:02.976Z] ✔ Mounted /api/tournaments
+[2025-08-24T19:01:03.029Z] ✔ Mounted /api/leaderboard
+[2025-08-24T19:01:03.090Z] ✔ Mounted /api/results
+[2025-08-24T19:01:03.115Z] ✔ Mounted /api/wallet
+[2025-08-24T19:01:03.136Z] 🚀 Server running at http://localhost:5000
+[2025-08-24T19:01:04.220Z] ✔ MongoDB connected
+[2025-08-24T19:05:25.135Z] 📡 [POST] /api/auth/signup Params: {} Query: {} Body: {"phoneNumber":"987654321","username":"Tushar","email":"tusharkadam@gmail.com","password":"Test@1234"}
+[2025-08-24T19:05:25.153Z] 📌 [Route Called] POST /api/auth/signup
+[2025-08-24T19:05:26.431Z] ✅ [Route Success] POST /api/auth/signup
+[2025-08-24T19:05:56.992Z] 📡 [POST] /api/auth/signup Params: {} Query: {} Body: {"phoneNumber":"987654321","username":"Tushar","email":"tusharkadam@gmail.com","password":"12345678"}
+[2025-08-24T19:05:56.994Z] 📌 [Route Called] POST /api/auth/signup
+[2025-08-24T19:05:57.051Z] ✅ [Route Success] POST /api/auth/signup
+[2025-08-24T19:06:25.806Z] 📡 [POST] /api/auth/signup Params: {} Query: {} Body: {"phoneNumber":"987654333","username":"Tushar","email":"tusharkadam@gmail.com","password":"12345678"}
+[2025-08-24T19:06:25.811Z] 📌 [Route Called] POST /api/auth/signup
+[2025-08-24T19:06:25.859Z] ✅ [Route Success] POST /api/auth/signup
+[2025-08-24T19:16:19.683Z] 📡 [POST] /api/auth/signup Params: {} Query: {} Body: {"phoneNumber":"987654333","username":"Tushar","email":"tusharkadam@gmail.com","password":"12345678"}
+[2025-08-24T19:16:19.697Z] 📌 [Route Called] POST /api/auth/signup
+[2025-08-24T19:16:19.935Z] ✅ [Route Success] POST /api/auth/signup
+[2025-08-24T19:16:49.546Z] 📡 [POST] /api/auth/signup Params: {} Query: {} Body: {"phoneNumber":"9876654333","username":"Tushr","email":"tusharkam@gmail.com","password":"1234569978"}
+[2025-08-24T19:16:49.560Z] 📌 [Route Called] POST /api/auth/signup
+[2025-08-24T19:16:50.552Z] ✅ [Route Success] POST /api/auth/signup
+[2025-08-24T19:23:17.478Z] ✔ All route patterns are valid.
+[2025-08-24T19:23:17.742Z] ✔ Mounted /api/auth
+[2025-08-24T19:23:18.320Z] ✔ Mounted /api/tournaments
+[2025-08-24T19:23:18.327Z] ✔ Mounted /api/leaderboard
+[2025-08-24T19:23:18.338Z] ✔ Mounted /api/results
+[2025-08-24T19:23:18.343Z] ✔ Mounted /api/wallet
+[2025-08-24T19:23:18.378Z] 🚀 Server running at http://localhost:5000
+[2025-08-24T19:23:19.158Z] ✔ MongoDB connected
+[2025-08-24T19:23:26.172Z] 📡 [POST] /api/auth/signup Params: {} Query: {} Body: {"phoneNumber":"9876654333","username":"Tushr","email":"tusharkam@gmail.com","password":"1234569978"}
+[2025-08-24T19:23:26.175Z] 📌 [Route Called] POST /api/auth/signup
+[2025-08-24T19:23:26.240Z] ✅ [Route Success] POST /api/auth/signup
+[2025-08-24T19:23:59.323Z] 📡 [POST] /api/auth/signup Params: {} Query: {} Body: {"phoneNumber":"9897654333","username":"TAthshr","email":"tusharathm@gmail.com","password":"1ew69978"}
+[2025-08-24T19:23:59.337Z] 📌 [Route Called] POST /api/auth/signup
+[2025-08-24T19:24:03.083Z] ✅ [Route Success] POST /api/auth/signup
+[2025-08-24T19:26:56.921Z] 📡 [POST] /api/auth/login Params: {} Query: {} Body: {"phoneNumber":"8070887273","username":"Ehtesham"}
+[2025-08-24T19:26:56.924Z] 📌 [Route Called] POST /api/auth/login
+[2025-08-24T19:26:56.948Z] ✅ [Route Success] POST /api/auth/login
