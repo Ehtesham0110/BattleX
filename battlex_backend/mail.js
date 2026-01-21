@@ -1,17 +1,15 @@
 ﻿const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  requireTLS: true,
+  host: "smtp-relay.brevo.com",
+  port: 465,              // ✅ CHANGE
+  secure: true,           // ✅ REQUIRED for 465
   auth: {
     user: "apikey",
     pass: process.env.SMTP_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
+  connectionTimeout: 10000, // ✅ prevent hanging
+  greetingTimeout: 10000,
 });
 
 transporter.verify((error) => {
@@ -31,6 +29,5 @@ async function sendMail({ to, subject, text, html }) {
     html,
   });
 }
-
 
 module.exports = sendMail;
