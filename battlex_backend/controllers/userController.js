@@ -1,4 +1,6 @@
-﻿const bcrypt = require('bcrypt');
+﻿//userController.js
+
+const bcrypt = require('bcrypt');
 const User = require('../models/user');         
 const Transaction = require('../models/transaction');
 const sendMail = require('../mail');
@@ -44,7 +46,9 @@ const signup = async (req, res) => {
     }
 
     const existingUser = await User.findOne({ $or: [{ phoneNumber }, { email }] });
-    if (existingUser) return res.status(409).json({ success: false, message: 'User already exists' });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: 'User already exists' });
+    }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
@@ -61,13 +65,21 @@ const signup = async (req, res) => {
 
     await newUser.save();
 
-    await sendMail({
+    // ✅ RESPOND FIRST (IMPORTANT)
+    res.status(201).json({
+      success: true,
+      message: 'Signup successful. OTP generated.',
+    });
+
+    // 🔁 SEND EMAIL IN BACKGROUND (NON-BLOCKING)
+    sendMail({
       to: email,
       subject: 'BattleX Verification Code',
       text: `Your OTP is: ${otpCode}\n\nIt will expire in 10 minutes.`,
+    }).catch(err => {
+      console.error('⚠️ OTP email failed, signup still successful:', err.message);
     });
 
-    return res.status(200).json({ success: true, message: 'OTP sent to email' });
   } catch (error) {
     console.error('❌ Signup Error:', error);
     return res.status(500).json({ success: false, message: 'Signup failed' });
@@ -205,34 +217,51 @@ const resendOtp = async (req, res) => {
     const { phoneNumber, email } = req.body;
 
     if (!phoneNumber || !email) {
-      return res.status(400).json({ success: false, message: 'Phone number and email are required' });
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number and email are required'
+      });
     }
 
     const foundUser = await User.findOne({ phoneNumber, email });
 
-    if (!foundUser) return res.status(404).json({ success: false, message: 'User not found' });
-    if (foundUser.isVerified) return res.status(400).json({ success: false, message: 'User already verified' });
+    if (!foundUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (foundUser.isVerified) {
+      return res.status(400).json({ success: false, message: 'User already verified' });
+    }
 
     // Generate new OTP
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     foundUser.otp = otpCode;
     foundUser.otpExpiry = otpExpiry;
     await foundUser.save();
 
-    // Send OTP via email
-    await sendMail({
+    // ✅ RESPOND FIRST
+    res.status(200).json({
+      success: true,
+      message: 'OTP regenerated'
+    });
+
+    // 🔁 SEND EMAIL IN BACKGROUND (NON-BLOCKING)
+    sendMail({
       to: email,
       subject: 'BattleX OTP Resend',
       text: `Your new OTP is: ${otpCode}\n\nIt will expire in 10 minutes.`,
+    }).catch(err => {
+      console.error('⚠️ Resend OTP email failed:', err.message);
     });
-
-    return res.status(200).json({ success: true, message: 'OTP resent to email' });
 
   } catch (error) {
     console.error('❌ Resend OTP Error:', error);
-    return res.status(500).json({ success: false, message: 'Failed to resend OTP' });
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to resend OTP'
+    });
   }
 };
 
