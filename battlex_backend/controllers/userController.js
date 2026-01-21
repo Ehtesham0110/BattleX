@@ -3,7 +3,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');         
 const Transaction = require('../models/transaction');
-const sendMail = require('../mail');
+const sendMail = require('../services/brevoMail');
 const otpTemplate = require('../templates/otpEmail');
 
 
