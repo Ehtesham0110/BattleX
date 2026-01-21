@@ -1,7 +1,5 @@
 const axios = require("axios");
 
-const BREVO_API_KEY = process.env.SMTP_PASS; // xkeysib-...
-
 async function sendMail({ to, subject, html, text }) {
   try {
     await axios.post(
@@ -9,7 +7,7 @@ async function sendMail({ to, subject, html, text }) {
       {
         sender: {
           name: "BattleX",
-          email: process.env.SMTP_FROM,
+          email: "battlexffofficial@gmail.com", // ✅ FIXED
         },
         to: [{ email: to }],
         subject,
@@ -18,7 +16,7 @@ async function sendMail({ to, subject, html, text }) {
       },
       {
         headers: {
-          "api-key": BREVO_API_KEY,
+          "api-key": process.env.SMTP_PASS,
           "Content-Type": "application/json",
         },
         timeout: 10000,
