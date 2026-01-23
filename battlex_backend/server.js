@@ -93,7 +93,6 @@ app.use((req, res, next) => {
 // Multer setup
 // -------------------
 const storage = multer.memoryStorage();
-console.log('BUFFER EXISTS:', !!req.file.buffer);
 
 const upload = multer({
   storage,
