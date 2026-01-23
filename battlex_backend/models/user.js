@@ -1,26 +1,44 @@
-﻿  //user.js
-  const mongoose = require('mongoose');
+﻿// user.js
+const mongoose = require('mongoose');
 
-  const userSchema = new mongoose.Schema({
-    phoneNumber: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    username: { type: String, required: true },
-    password: { type: String, required: true },
-    walletBalance: { type: Number, default: 0 },
-    isVerified: { type: Boolean, default: false },
-    otp: String,
-    otpExpiry: Date,
+const userSchema = new mongoose.Schema(
+  {
+    phoneNumber: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
 
-    // ✅ FCM token
-    fcmToken: { type: String },
+    username: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    transactions: [
-      {
-        type: { type: String, enum: ['add', 'withdraw'], required: true },
-        amount: { type: Number, required: true },
-        timestamp: { type: Date, default: Date.now }
-      }
-    ]
-  }, { timestamps: true });
+    password: {
+      type: String,
+      required: true,
+    },
 
-  module.exports = mongoose.models.user || mongoose.model('user', userSchema);
+    walletBalance: {
+      type: Number,
+      default: 0,
+    },
+
+    // ✅ Phone verification handled by Firebase
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    // ✅ FCM token (optional)
+    fcmToken: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
+
+module.exports =
+  mongoose.models.User || mongoose.model('User', userSchema);
