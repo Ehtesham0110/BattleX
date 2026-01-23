@@ -92,10 +92,9 @@ app.use((req, res, next) => {
 // -------------------
 // Multer setup
 // -------------------
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
+const storage = multer.memoryStorage();
+console.log('BUFFER EXISTS:', !!req.file.buffer);
+
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
