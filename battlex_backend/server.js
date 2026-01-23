@@ -99,9 +99,14 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png/;
-    const valid = allowed.test(file.mimetype) && allowed.test(path.extname(file.originalname).toLowerCase());
-    cb(valid ? null : new Error('Only images allowed'), valid);
+    const allowedExt = /jpeg|jpg|png|webp/;
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    if (!allowedExt.test(ext)) {
+      return cb(new Error('Upload file must be an image'), false);
+    }
+
+    cb(null, true);
   }
 });
 
