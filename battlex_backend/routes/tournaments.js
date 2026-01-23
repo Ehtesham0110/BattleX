@@ -93,10 +93,6 @@ router.post(
     }
 
     // Extra validations for image type and size
-    if (!req.file.mimetype.startsWith('image/')) {
-      console.error("❌ Uploaded file is not an image:", req.file.mimetype);
-      return res.status(400).json({ error: "Uploaded file must be an image" });
-    }
     if (req.file.size > 5 * 1024 * 1024) {
       console.error("❌ Image size too large:", req.file.size);
       return res.status(400).json({ error: "Image size must be < 5MB" });
