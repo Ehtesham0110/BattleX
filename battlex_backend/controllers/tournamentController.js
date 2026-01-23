@@ -86,11 +86,15 @@ exports.createTournament = async (req, res) => {
       return res.status(400).json({ error: "Game type must be BR, CS, LONE WOLF, or SPECIAL" });
     }
 
-    // ✅ Validate file
-    const fileValidation = validateFile(req.file);
-    if (!fileValidation.valid) {
-      return res.status(400).json({ error: fileValidation.message });
-    }
+    // ✅ Validate file (extension-based for mobile compatibility)
+const ext = path.extname(req.file.originalname).toLowerCase();
+const allowedExt = ['.jpg', '.jpeg', '.png', '.webp'];
+
+if (!allowedExt.includes(ext)) {
+  console.error('❌ Uploaded file is not an image:', ext);
+  return res.status(400).json({ error: 'Upload file must be an image' });
+}
+
 
     // ✅ Handle prizePerKill
     const prizePerKillValue = prizePerKill
