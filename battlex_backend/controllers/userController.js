@@ -7,23 +7,22 @@ const Transaction = require('../models/transaction');
 // ----------------------- LOGIN -----------------------
 const login = async (req, res) => {
   try {
-    const { phoneNumber, password } = req.body;
+    const { phoneNumber, username } = req.body;
 
-    if (!phoneNumber || !password) {
+    if (!phoneNumber || !username) {
       return res.status(400).json({
         success: false,
-        message: 'Phone number and password are required',
+        message: 'Phone number and username are required',
       });
     }
 
-    const foundUser = await User.findOne({ phoneNumber });
-    if (!foundUser) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
+    const foundUser = await User.findOne({ phoneNumber, username });
 
-    const isMatch = await bcrypt.compare(password, foundUser.password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    if (!foundUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid login details',
+      });
     }
 
     if (!foundUser.phoneVerified) {
@@ -43,9 +42,12 @@ const login = async (req, res) => {
         walletBalance: foundUser.walletBalance || 0,
       },
     });
-  } catch (error) {
-    console.error('❌ Login Error:', error);
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+  } catch (err) {
+    console.error('❌ Login Error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
   }
 };
 
