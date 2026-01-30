@@ -287,6 +287,146 @@ exports.joinTournament = async (req, res) => {
   }
 };
 
+exports.joinTeamTournament = async (req, res) => {
+  const session = await User.startSession();
+  session.startTransaction();
+
+  try {
+    const tournamentId = req.params.id;
+    const { captainPhoneNumber, teamName, members } = req.body;
+
+    // 1️⃣ Basic validation
+    if (!teamName || !Array.isArray(members) || members.length !== 3) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "Invalid team data" });
+    }
+
+    // 2️⃣ Fetch captain
+    const captain = await User.findOne({ phoneNumber: captainPhoneNumber }).session(session);
+    if (!captain) {
+      await session.abortTransaction();
+      return res.status(404).json({ message: "Captain not found" });
+    }
+
+    // 3️⃣ Fetch tournament
+    const tournament = await Tournament.findById(tournamentId).session(session);
+    if (!tournament) {
+      await session.abortTransaction();
+      return res.status(404).json({ message: "Tournament not found" });
+    }
+
+    // Ensure teams array exists (safety)
+    tournament.teams = tournament.teams || [];
+
+    // 4️⃣ Fetch team members FIRST
+    const memberUsers = await User.find({
+  username: { $in: members }
+}).session(session);
+
+if (memberUsers.length !== 3) {
+  await session.abortTransaction();
+  return res.status(400).json({
+    message: "One or more Free Fire usernames are invalid"
+  });
+}
+    if (memberUsers.length !== 3) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "Invalid team members" });
+    }
+
+    // 5️⃣ Duplicate player check (solo / team)
+    const allIds = [
+      captain._id.toString(),
+      ...memberUsers.map(m => m._id.toString())
+    ];
+
+    const alreadyExists = tournament.players.some(p =>
+      allIds.includes(p.userId.toString())
+    );
+
+    if (alreadyExists) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        message: "One or more players already joined this tournament"
+      });
+    }
+
+    // 6️⃣ Team name uniqueness check
+    const teamExists = tournament.teams.some(
+      t => t.teamName.toLowerCase() === teamName.toLowerCase()
+    );
+
+    if (teamExists) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "Team name already taken" });
+    }
+
+    const teamSize = 4;
+    const totalFee = Number(tournament.entryFee || 0) * teamSize;
+
+    // 7️⃣ Slot availability check
+    if (tournament.players.length + teamSize > tournament.maxPlayers) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "Not enough slots for team" });
+    }
+
+    // 8️⃣ Wallet balance check
+    if (captain.walletBalance < totalFee) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "Insufficient wallet balance" });
+    }
+
+    // 9️⃣ Deduct wallet + transaction
+    captain.walletBalance -= totalFee;
+    await captain.save({ session });
+
+    await Transaction.create([{
+      user: captain._id,
+      type: 'withdraw',
+      amount: totalFee,
+      description: `Team "${teamName}" joined: ${tournament.title}`,
+      date: getISTTime()
+    }], { session });
+
+    // 🔟 Save team
+    tournament.teams.push({
+      teamName,
+      captainUserId: captain._id,
+      members: [captain._id, ...memberUsers.map(m => m._id)]
+    });
+
+    // 1️⃣1️⃣ Push all players (+4)
+    const allPlayers = [captain, ...memberUsers];
+    allPlayers.forEach(u => {
+      tournament.players.push({
+        userId: u._id,
+        username: u.username,
+        phoneNumber: u.phoneNumber,
+        notified30Min: false,
+        notified10Min: false
+      });
+    });
+
+    await tournament.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.json({
+      success: true,
+      message: "Team successfully joined",
+      walletBalance: captain.walletBalance,
+      tournament
+    });
+
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("❌ Team Join Error:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // ✅ Get players who joined a tournament
 exports.getJoinedPlayers = async (req, res) => {
   try {

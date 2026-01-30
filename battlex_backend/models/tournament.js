@@ -16,19 +16,19 @@ const tournamentSchema = new mongoose.Schema({
   },
   gameType: {
     type: String,
-    enum: ['BR', 'CS', 'LONE WOLF', 'SPECIAL'], // ✅ All game types supported
+    enum: ['BR', 'CS', 'LONE WOLF', 'SPECIAL'],
     required: true,
   },
   date: {
-    type: String, // "04 Aug, 6:00PM" - for display purposes (IST string)
-    required: true,
+    type: String,
+    required: true, // IST string
   },
   dateTime: { 
-    type: Date, // ✅ Stored in UTC for filtering/sorting
-    required: true,
+    type: Date,
+    required: true, // UTC
   },
   timestamp: { 
-    type: Date, // ✅ Kept for backward compatibility
+    type: Date,
   },
   entryFee: {
     type: Number,
@@ -58,11 +58,13 @@ const tournamentSchema = new mongoose.Schema({
     type: [String],
     default: ['No emulators', 'No teaming'],
   },
+
+  // 👥 ALL PLAYERS (solo + team)
   players: [
     {
       userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'User',
         required: true,
       },
       username: {
@@ -73,22 +75,48 @@ const tournamentSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      // ✅ Notification flags
       notified30Min: {
         type: Boolean,
         default: false,
       },
-      notified10Min: {   // 🔥 renamed from notified5Min → matches scheduler
+      notified10Min: {
         type: Boolean,
         default: false,
       },
     },
   ],
-  // ✅ Precomputed notification times
+
+  // 🧠 TEAM DATA (NEW & REQUIRED)
+  teams: {
+    type: [
+      {
+        teamName: {
+          type: String,
+          required: true,
+        },
+        captainUserId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+          required: true,
+        },
+        members: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+          },
+        ],
+      },
+    ],
+    default: [],
+  },
+
+  // ⏰ Notifications
   notificationTimes: {
     reminder30: { type: Date },
     reminder10: { type: Date },
   },
+
   imageFilename: {
     type: String,
     required: true,
@@ -98,9 +126,12 @@ const tournamentSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-// ✅ Indexes for performance
+// ✅ Indexes
 tournamentSchema.index({ gameType: 1 });
 tournamentSchema.index({ dateTime: 1 });
 tournamentSchema.index({ 'players.userId': 1 });
+tournamentSchema.index({ 'teams.captainUserId': 1 });
 
-module.exports = mongoose.models.Tournament || mongoose.model('Tournament', tournamentSchema);
+module.exports =
+  mongoose.models.Tournament ||
+  mongoose.model('Tournament', tournamentSchema);

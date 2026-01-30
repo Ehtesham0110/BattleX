@@ -225,4 +225,25 @@ router.get(
   asyncHandler(tournamentController.getMyTournaments, 'getMyTournaments')
 );
 
+router.post(
+  '/join-team/:id',
+  validate([
+    param('id').isMongoId().withMessage('Invalid tournament ID'),
+    body('captainPhoneNumber')
+      .isMobilePhone()
+      .withMessage('Valid captain phone number required'),
+    body('teamName')
+      .notEmpty()
+      .withMessage('Team name is required'),
+    body('members')
+      .isArray({ min: 3, max: 3 })
+      .withMessage('Exactly 3 team members required'),
+  ]),
+  asyncHandler(
+    tournamentController.joinTeamTournament,
+    'joinTeamTournament'
+  )
+);
+
+
 module.exports = router;
