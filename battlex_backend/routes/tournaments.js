@@ -225,6 +225,7 @@ router.get(
   asyncHandler(tournamentController.getMyTournaments, 'getMyTournaments')
 );
 
+// TEAM JOIN: members are FREE FIRE USERNAMES (not app users)
 router.post(
   '/join-team/:id',
   validate([
@@ -236,8 +237,14 @@ router.post(
       .notEmpty()
       .withMessage('Team name is required'),
     body('members')
-      .isArray({ min: 3, max: 3 })
-      .withMessage('Exactly 3 team members required'),
+  .isArray({ min: 3, max: 3 })
+  .withMessage('Exactly 3 team members required')
+  .custom((members) => {
+    if (!members.every(m => typeof m === 'string' && m.trim().length > 0)) {
+      throw new Error('Each member must be a valid Free Fire username');
+    }
+    return true;
+  }),
   ]),
   asyncHandler(
     tournamentController.joinTeamTournament,

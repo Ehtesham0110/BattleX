@@ -6,60 +6,79 @@ const tournamentSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+
   description: {
     type: String,
     required: true,
   },
+
   game: {
     type: String,
     default: 'Free Fire',
   },
+
   gameType: {
     type: String,
     enum: ['BR', 'CS', 'LONE WOLF', 'SPECIAL'],
     required: true,
   },
+
   date: {
     type: String,
-    required: true, // IST string
+    required: true, // IST string (for UI)
   },
+
   dateTime: { 
     type: Date,
-    required: true, // UTC
+    required: true, // UTC (logic & sorting)
   },
+
   timestamp: { 
     type: Date,
   },
+
   entryFee: {
     type: Number,
     required: true,
   },
+
   maxPlayers: {
     type: Number,
     required: true,
   },
+
+  // ✅ ACTUAL player count (solo + team ghost slots)
+  playersCount: {
+    type: Number,
+    default: 0,
+  },
+
   roomId: {
     type: String,
     default: '',
   },
+
   roomPassword: {
     type: String,
     default: '',
   },
+
   prizePool: {
     type: Number,
     default: 0,
   },
+
   prizePerKill: { 
     type: Number,
     default: 0,
   },
+
   rules: {
     type: [String],
     default: ['No emulators', 'No teaming'],
   },
 
-  // 👥 ALL PLAYERS (solo + team)
+  // 👤 REAL APP USERS ONLY
   players: [
     {
       userId: {
@@ -86,31 +105,6 @@ const tournamentSchema = new mongoose.Schema({
     },
   ],
 
-  // 🧠 TEAM DATA (NEW & REQUIRED)
-  teams: {
-    type: [
-      {
-        teamName: {
-          type: String,
-          required: true,
-        },
-        captainUserId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-          required: true,
-        },
-        members: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-          },
-        ],
-      },
-    ],
-    default: [],
-  },
-
   // ⏰ Notifications
   notificationTimes: {
     reminder30: { type: Date },
@@ -121,16 +115,19 @@ const tournamentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
   imageUrl: { 
     type: String,
   },
+
 }, { timestamps: true });
+
 
 // ✅ Indexes
 tournamentSchema.index({ gameType: 1 });
 tournamentSchema.index({ dateTime: 1 });
+tournamentSchema.index({ playersCount: 1 });
 tournamentSchema.index({ 'players.userId': 1 });
-tournamentSchema.index({ 'teams.captainUserId': 1 });
 
 module.exports =
   mongoose.models.Tournament ||
