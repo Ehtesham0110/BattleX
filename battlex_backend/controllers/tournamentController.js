@@ -378,15 +378,6 @@ exports.joinTeamTournament = async (req, res) => {
       members: members.map(name => ({ ffUsername: name.trim() }))
     }], { session });
 
-    // 9️⃣ Push ONLY captain to players
-    tournament.players.push({
-      userId: captain._id,
-      username: captain.username,
-      phoneNumber: captain.phoneNumber,
-      notified30Min: false,
-      notified10Min: false
-    });
-
     // ✅ Correct slot increment
     tournament.playersCount += 4;
 
@@ -664,11 +655,39 @@ exports.getTournamentDetails = async (req, res) => {
 // ✅ Get my tournaments
 exports.getMyTournaments = async (req, res) => {
   try {
+    const Team = require('../models/team');
     const { userId } = req.params;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    const tournaments = await Tournament.find({ 'players.userId': user._id }).sort({ dateTime: 1 }); // ✅ Updated sort field
+    // 1️⃣ SOLO tournaments (user joined solo)
+const soloTournaments = await Tournament.find({
+  'players.userId': user._id
+});
+
+// 2️⃣ TEAM tournaments (user is captain)
+const teamDocs = await Team.find({
+  'captain.userId': user._id
+});
+
+const teamTournamentIds = teamDocs.map(t => t.tournamentId);
+
+// 3️⃣ Fetch tournaments where user joined as team captain
+const teamTournaments = await Tournament.find({
+  _id: { $in: teamTournamentIds }
+});
+
+// 4️⃣ Merge & remove duplicates
+const tournamentsMap = new Map();
+
+[...soloTournaments, ...teamTournaments].forEach(t => {
+  tournamentsMap.set(t._id.toString(), t);
+});
+
+const tournaments = Array.from(tournamentsMap.values())
+  .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+
+  // ✅ Updated sort field
     log(`🎮 User ${userId} joined tournaments by type:`, tournaments.reduce((acc, t) => {
       acc[t.gameType] = (acc[t.gameType] || 0) + 1;
       return acc;
