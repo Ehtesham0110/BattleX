@@ -601,6 +601,7 @@ exports.getTournamentDetails = async (req, res) => {
   try {
     const tournamentId = req.params.id;
     const { phoneNumber } = req.query;
+    const Team = require('../models/team');
 
     log("📝 Fetching tournament details:", { tournamentId, phoneNumber });
 
@@ -614,7 +615,17 @@ exports.getTournamentDetails = async (req, res) => {
       return res.status(404).json({ success: false, message: "Tournament not found" });
     }
 
-    log("🎮 Tournament details - Type:", tournament.gameType, "Title:", tournament.title);
+    // 🔥 FETCH TEAMS FOR THIS TOURNAMENT
+    const teams = await Team.find({ tournamentId }).lean();
+
+    log(
+      "🎮 Tournament details:",
+      tournament.title,
+      "| Type:",
+      tournament.gameType,
+      "| Teams:",
+      teams.length
+    );
 
     let alreadyJoined = false;
 
@@ -628,14 +639,14 @@ exports.getTournamentDetails = async (req, res) => {
         }
       } catch (e) {
         errorLog("❌ Failed to fetch user:", e);
-        // continue silently; alreadyJoined remains false
       }
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: {
         ...tournament,
+        teams, // ✅ THIS IS THE MAGIC
         alreadyJoined,
         roomId: alreadyJoined ? tournament.roomId : null,
         roomPassword: alreadyJoined ? tournament.roomPassword : null
@@ -643,7 +654,10 @@ exports.getTournamentDetails = async (req, res) => {
     });
   } catch (err) {
     errorLog("❌ Error in getTournamentDetails:", err);
-    res.status(500).json({ success: false, message: "Internal server error at getTournamentDetails" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error at getTournamentDetails"
+    });
   }
 };
 
