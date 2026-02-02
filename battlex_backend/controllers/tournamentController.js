@@ -261,6 +261,7 @@ exports.joinTournament = async (req, res) => {
       notified30Min: false,
       notified10Min: false   // 🔥 updated (was notified5Min)
     });
+    tournament.playersCount = (tournament.playersCount || 0) + 1;
     await tournament.save({ session });
     log("✅ Tournament updated with new player:", currentUser._id);
 
@@ -315,7 +316,17 @@ exports.joinTeamTournament = async (req, res) => {
       return res.status(404).json({ message: "Tournament not found" });
     }
 
-    // 4️⃣ Team name uniqueness (GLOBAL per tournament)
+    // 🔒 PREVENT DUPLICATE JOIN (IMPORTANT)
+    const alreadyJoined = tournament.players.some(
+      p => p.userId.toString() === captain._id.toString()
+    );
+
+    if (alreadyJoined) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "Captain already joined this tournament" });
+    }
+
+    // 4️⃣ Team name uniqueness (per tournament)
     const Team = require('../models/team');
     const existingTeam = await Team.findOne({
       tournamentId,
@@ -329,14 +340,9 @@ exports.joinTeamTournament = async (req, res) => {
 
     // 5️⃣ Slot availability (+4 players)
     const teamSize = 4;
-    const currentCount =
-  tournament.playersCount || tournament.players.length;
+    const currentCount = tournament.playersCount;
 
-if (currentCount + teamSize > tournament.maxPlayers) {
-  await session.abortTransaction();
-  return res.status(400).json({ message: "Not enough slots for team" });
-}
- {
+    if (currentCount + teamSize > tournament.maxPlayers) {
       await session.abortTransaction();
       return res.status(400).json({ message: "Not enough slots for team" });
     }
@@ -360,7 +366,7 @@ if (currentCount + teamSize > tournament.maxPlayers) {
       date: getISTTime()
     }], { session });
 
-    // 8️⃣ Save TEAM (FF usernames only)
+    // 8️⃣ Save TEAM
     const team = await Team.create([{
       tournamentId,
       teamName,
@@ -372,7 +378,7 @@ if (currentCount + teamSize > tournament.maxPlayers) {
       members: members.map(name => ({ ffUsername: name.trim() }))
     }], { session });
 
-    // 9️⃣ Push ONLY captain to tournament.players (+1 real user)
+    // 9️⃣ Push ONLY captain to players
     tournament.players.push({
       userId: captain._id,
       username: captain.username,
@@ -381,8 +387,8 @@ if (currentCount + teamSize > tournament.maxPlayers) {
       notified10Min: false
     });
 
-    // 🔟 Increase player count logically (+3 ghost slots)
-    tournament.playersCount = (tournament.playersCount || tournament.players.length) + 3;
+    // ✅ Correct slot increment
+    tournament.playersCount += 4;
 
     await tournament.save({ session });
 
