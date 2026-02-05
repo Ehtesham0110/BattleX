@@ -378,6 +378,9 @@ exports.joinTeamTournament = async (req, res) => {
       members: members.map(name => ({ ffUsername: name.trim() }))
     }], { session });
 
+    // 🔥 ADD THIS LINE:
+    tournament.teams.push(team[0]._id);  // ← Line 1 (CORRECT)
+
     // ✅ Correct slot increment
     tournament.playersCount += 4;
 
@@ -390,7 +393,7 @@ exports.joinTeamTournament = async (req, res) => {
       success: true,
       message: "Team successfully joined",
       walletBalance: captain.walletBalance,
-      team: team[0]
+      team: team
     });
 
   } catch (err) {
@@ -418,6 +421,7 @@ exports.getJoinedPlayers = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 // ✅ Submit match result
 exports.submitResult = async (req, res) => {
@@ -590,67 +594,62 @@ exports.getTournamentsByType = async (req, res) => {
 // ✅ Get tournament details
 exports.getTournamentDetails = async (req, res) => {
   try {
-    const tournamentId = req.params.id;
+    const { id } = req.params;
     const { phoneNumber } = req.query;
-    const Team = require('../models/team');
 
-    log("📝 Fetching tournament details:", { tournamentId, phoneNumber });
-
-    if (!tournamentId) {
-      return res.status(400).json({ success: false, message: "Tournament ID required" });
-    }
-
-    const tournament = await Tournament.findById(tournamentId).lean();
-    if (!tournament) {
-      errorLog("❌ Tournament not found:", tournamentId);
-      return res.status(404).json({ success: false, message: "Tournament not found" });
-    }
-
-    // 🔥 FETCH TEAMS FOR THIS TOURNAMENT
-    const teams = await Team.find({ tournamentId }).lean();
-
-    log(
-      "🎮 Tournament details:",
-      tournament.title,
-      "| Type:",
-      tournament.gameType,
-      "| Teams:",
-      teams.length
-    );
-
-    let alreadyJoined = false;
-
-    if (phoneNumber) {
-      try {
-        const user = await User.findOne({ phoneNumber }).lean();
-        if (user && Array.isArray(tournament.players)) {
-          alreadyJoined = tournament.players.some(
-            p => p.userId && p.userId.toString() === user._id.toString()
-          );
+    const tournament = await Tournament.findById(id)
+      .populate('players.userId', 'username phoneNumber')
+      .populate({
+        path: 'teams',
+        model: 'Team',
+        populate: {
+          path: 'captain.userId',
+          model: 'User',
+          select: 'username phoneNumber'
         }
-      } catch (e) {
-        errorLog("❌ Failed to fetch user:", e);
-      }
+      });
+
+    if (!tournament) {
+      return res.status(404).json({ error: 'Tournament not found' });
     }
 
-    return res.status(200).json({
+    // Separate solo players from teams
+    const soloPlayers = (tournament.players || [])
+      .map(p => ({
+        userId: p.userId?._id || p.userId,
+        username: p.username,
+        phoneNumber: p.phoneNumber
+      }));
+
+    const teams = (tournament.teams || [])
+      .map(team => ({
+        _id: team._id,
+        teamName: team.teamName,
+        captain: {
+          userId: team.captain?.userId?._id || team.captain?.userId,
+          username: team.captain?.username || 'Unknown',
+          phoneNumber: team.captain?.phoneNumber
+        },
+        members: (team.members || [])
+          .map(m => ({ ffUsername: m.ffUsername }))
+      }));
+
+    const response = {
       success: true,
       data: {
-        ...tournament,
-        teams, // ✅ THIS IS THE MAGIC
-        alreadyJoined,
-        roomId: alreadyJoined ? tournament.roomId : null,
-        roomPassword: alreadyJoined ? tournament.roomPassword : null
+        ...tournament.toObject(),
+        players: soloPlayers,  // Only solo players
+        teams: teams,          // All teams
       }
-    });
+    };
+
+    res.json(response);
   } catch (err) {
-    errorLog("❌ Error in getTournamentDetails:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error at getTournamentDetails"
-    });
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 // ✅ Get my tournaments
 exports.getMyTournaments = async (req, res) => {

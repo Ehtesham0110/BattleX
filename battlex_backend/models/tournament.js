@@ -104,6 +104,7 @@ const tournamentSchema = new mongoose.Schema({
       },
     },
   ],
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
 
   // ⏰ Notifications
   notificationTimes: {
@@ -128,6 +129,7 @@ tournamentSchema.index({ gameType: 1 });
 tournamentSchema.index({ dateTime: 1 });
 tournamentSchema.index({ playersCount: 1 });
 tournamentSchema.index({ 'players.userId': 1 });
+tournamentSchema.index({ teams: 1 });
 
 module.exports =
   mongoose.models.Tournament ||
