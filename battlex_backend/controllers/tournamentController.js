@@ -12,6 +12,8 @@ const TournamentResults = require('../models/tournamentResults'); // ✅ NEW: Im
 const schedule = require('node-schedule');
 const { sendNotificationToUser } = require('./notificationsController');
 const streamifier = require('streamifier');
+const Team = require('../models/team');
+
 
 // Helper: timestamped logs
 const log = (...args) => console.log(new Date().toISOString(), ...args);
@@ -641,46 +643,42 @@ exports.getTournamentsByType = async (req, res) => {
 };
 
 // ✅ Get tournament details
+// ✅ Get tournament details (Solo + Teams separated)
 exports.getTournamentDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
     const tournament = await Tournament.findById(id)
-      .populate('players.userId', 'username phoneNumber')
+      .populate("players.userId", "username phoneNumber")
       .populate({
-        path: 'teams',
-        model: 'Team',
-        populate: {
-          path: 'captain.userId',
-          model: 'User',
-          select: 'username phoneNumber'
-        }
+        path: "teams",
+        model: "Team"
       });
 
     if (!tournament) {
-      return res.status(404).json({ error: 'Tournament not found' });
+      return res.status(404).json({ error: "Tournament not found" });
     }
 
-    // ✅ Build teams first
+    // ✅ Extract teams
     const teams = (tournament.teams || []).map(team => ({
       _id: team._id,
       teamName: team.teamName,
       captain: {
-        userId: team.captain?.userId?._id || team.captain?.userId,
-        username: team.captain?.username || team.captain?.userId?.username || "Unknown",
-        phoneNumber: team.captain?.phoneNumber || team.captain?.userId?.phoneNumber
+        userId: team.captain?.userId,
+        username: team.captain?.username || "Unknown",
+        phoneNumber: team.captain?.phoneNumber
       },
       members: (team.members || []).map(m => ({
         ffUsername: m.ffUsername
       }))
     }));
 
-    // ✅ Collect captain IDs (so they don't appear in solo)
+    // ✅ Collect captain IDs (remove them from solo)
     const captainIds = teams
       .map(t => t.captain?.userId?.toString())
       .filter(Boolean);
 
-    // ✅ Solo players (filtered: remove captains if mistakenly stored in players[])
+    // ✅ Extract solo players only
     const soloPlayers = (tournament.players || [])
       .map(p => ({
         userId: p.userId?._id || p.userId,
@@ -689,16 +687,14 @@ exports.getTournamentDetails = async (req, res) => {
       }))
       .filter(p => !captainIds.includes(p.userId?.toString()));
 
-    const response = {
+    return res.json({
       success: true,
       data: {
         ...tournament.toObject(),
-        players: soloPlayers, // ✅ Only solo players
-        teams: teams          // ✅ Only teams
+        players: soloPlayers,
+        teams: teams
       }
-    };
-
-    return res.json(response);
+    });
 
   } catch (err) {
     console.error("❌ Error in getTournamentDetails:", err);
