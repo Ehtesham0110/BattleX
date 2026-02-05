@@ -178,9 +178,11 @@ if (!allowedExt.includes(ext)) {
 exports.joinTournament = async (req, res) => {
   const session = await User.startSession();
   session.startTransaction();
+
   try {
     const tournamentId = req.params.id;
     const { phoneNumber } = req.body;
+
     log("📝 [JOIN] Request received:", { tournamentId, phoneNumber });
 
     const currentUser = await User.findOne({ phoneNumber }).session(session);
@@ -201,28 +203,59 @@ exports.joinTournament = async (req, res) => {
 
     log("🎮 Tournament game type:", tournament.gameType);
 
+    // ✅ NEW: Prevent solo join if user already joined as TEAM CAPTAIN
+    const Team = require("../models/team");
+
+    const alreadyJoinedAsCaptain = await Team.findOne({
+      tournamentId: tournamentId,
+      "captain.userId": currentUser._id
+    }).session(session);
+
+    if (alreadyJoinedAsCaptain) {
+      log("⚠️ User already joined as team captain:", {
+        userId: currentUser._id,
+        tournamentId
+      });
+
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(400).json({
+        success: false,
+        message: "You already joined this tournament as a Team Captain"
+      });
+    }
+
+    // ✅ Existing check: Prevent duplicate solo join
     const alreadyJoined = tournament.players.some(
       p => p.userId.toString() === currentUser._id.toString()
     );
+
     if (alreadyJoined) {
       log("⚠️ User already joined:", { userId: currentUser._id, tournamentId });
       await session.abortTransaction();
       session.endSession();
+
       return res.status(200).json({
         success: true,
         message: "Already joined this tournament",
         walletBalance: currentUser.walletBalance,
-        tournament: { 
-          ...tournament.toObject(), 
-          alreadyJoined: true, 
-          roomId: tournament.roomId, 
-          roomPassword: tournament.roomPassword 
+        tournament: {
+          ...tournament.toObject(),
+          alreadyJoined: true,
+          roomId: tournament.roomId,
+          roomPassword: tournament.roomPassword
         },
-        user: { id: currentUser._id, username: currentUser.username, phoneNumber: currentUser.phoneNumber }
+        user: {
+          id: currentUser._id,
+          username: currentUser.username,
+          phoneNumber: currentUser.phoneNumber
+        }
       });
     }
 
-    if (tournament.players.length >= tournament.maxPlayers) {
+    // ✅ Slot check (use playersCount not players.length)
+    if (tournament.playersCount >= tournament.maxPlayers) {
       errorLog("❌ Tournament full:", tournamentId);
       await session.abortTransaction();
       session.endSession();
@@ -230,8 +263,14 @@ exports.joinTournament = async (req, res) => {
     }
 
     const entryFee = Number(tournament.entryFee || 0);
+
     if (entryFee > 0 && currentUser.walletBalance < entryFee) {
-      errorLog("❌ Insufficient wallet balance:", { userId: currentUser._id, balance: currentUser.walletBalance, required: entryFee });
+      errorLog("❌ Insufficient wallet balance:", {
+        userId: currentUser._id,
+        balance: currentUser.walletBalance,
+        required: entryFee
+      });
+
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({ message: "Insufficient wallet balance" });
@@ -240,53 +279,63 @@ exports.joinTournament = async (req, res) => {
     if (entryFee > 0) {
       currentUser.walletBalance -= entryFee;
       await currentUser.save({ session });
+
       log("💸 Deducted entry fee:", { userId: currentUser._id, amount: entryFee });
 
-      // ✅ FIXED: Create transaction with IST time
       await Transaction.create([{
         user: currentUser._id,
-        type: 'withdraw',
+        type: "withdraw",
         amount: entryFee,
         description: `Joined tournament: ${tournament.title}`,
-        date: getISTTime() // ✅ Add IST time
+        date: getISTTime()
       }], { session });
+
       log("✅ Transaction recorded for entry fee");
     }
 
-    // ✅ Add player with notification flags initialized
-    tournament.players.push({ 
-      userId: currentUser._id, 
-      username: currentUser.username, 
+    // ✅ Add solo player
+    tournament.players.push({
+      userId: currentUser._id,
+      username: currentUser.username,
       phoneNumber: currentUser.phoneNumber,
       notified30Min: false,
-      notified10Min: false   // 🔥 updated (was notified5Min)
+      notified10Min: false
     });
+
     tournament.playersCount = (tournament.playersCount || 0) + 1;
+
     await tournament.save({ session });
-    log("✅ Tournament updated with new player:", currentUser._id);
+
+    log("✅ Tournament updated with new solo player:", currentUser._id);
 
     await session.commitTransaction();
     session.endSession();
 
-    res.json({
+    return res.json({
       success: true,
       message: "Successfully joined tournament",
       walletBalance: currentUser.walletBalance,
-      tournament: { 
-        ...tournament.toObject(), 
-        alreadyJoined: true, 
-        roomId: tournament.roomId, 
-        roomPassword: tournament.roomPassword 
+      tournament: {
+        ...tournament.toObject(),
+        alreadyJoined: true,
+        roomId: tournament.roomId,
+        roomPassword: tournament.roomPassword
       },
-      user: { id: currentUser._id, username: currentUser.username, phoneNumber: currentUser.phoneNumber }
+      user: {
+        id: currentUser._id,
+        username: currentUser.username,
+        phoneNumber: currentUser.phoneNumber
+      }
     });
+
   } catch (err) {
     errorLog("❌ [JOIN] Error in joinTournament:", err);
     await session.abortTransaction();
     session.endSession();
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 exports.joinTeamTournament = async (req, res) => {
   const session = await User.startSession();
@@ -595,7 +644,6 @@ exports.getTournamentsByType = async (req, res) => {
 exports.getTournamentDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const { phoneNumber } = req.query;
 
     const tournament = await Tournament.findById(id)
       .populate('players.userId', 'username phoneNumber')
@@ -613,42 +661,51 @@ exports.getTournamentDetails = async (req, res) => {
       return res.status(404).json({ error: 'Tournament not found' });
     }
 
-    // Separate solo players from teams
+    // ✅ Build teams first
+    const teams = (tournament.teams || []).map(team => ({
+      _id: team._id,
+      teamName: team.teamName,
+      captain: {
+        userId: team.captain?.userId?._id || team.captain?.userId,
+        username: team.captain?.username || team.captain?.userId?.username || "Unknown",
+        phoneNumber: team.captain?.phoneNumber || team.captain?.userId?.phoneNumber
+      },
+      members: (team.members || []).map(m => ({
+        ffUsername: m.ffUsername
+      }))
+    }));
+
+    // ✅ Collect captain IDs (so they don't appear in solo)
+    const captainIds = teams
+      .map(t => t.captain?.userId?.toString())
+      .filter(Boolean);
+
+    // ✅ Solo players (filtered: remove captains if mistakenly stored in players[])
     const soloPlayers = (tournament.players || [])
       .map(p => ({
         userId: p.userId?._id || p.userId,
         username: p.username,
         phoneNumber: p.phoneNumber
-      }));
-
-    const teams = (tournament.teams || [])
-      .map(team => ({
-        _id: team._id,
-        teamName: team.teamName,
-        captain: {
-          userId: team.captain?.userId?._id || team.captain?.userId,
-          username: team.captain?.username || 'Unknown',
-          phoneNumber: team.captain?.phoneNumber
-        },
-        members: (team.members || [])
-          .map(m => ({ ffUsername: m.ffUsername }))
-      }));
+      }))
+      .filter(p => !captainIds.includes(p.userId?.toString()));
 
     const response = {
       success: true,
       data: {
         ...tournament.toObject(),
-        players: soloPlayers,  // Only solo players
-        teams: teams,          // All teams
+        players: soloPlayers, // ✅ Only solo players
+        teams: teams          // ✅ Only teams
       }
     };
 
-    res.json(response);
+    return res.json(response);
+
   } catch (err) {
-    console.error('Error:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("❌ Error in getTournamentDetails:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 // ✅ Get my tournaments
